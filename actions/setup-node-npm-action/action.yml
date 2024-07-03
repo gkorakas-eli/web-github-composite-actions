@@ -1,5 +1,5 @@
 name: 'Setup Node & NPM'
-description: 'Setup node environment'
+description: 'GitHub action that sets the node environment for a workflow and downloads NPM dependencies.'
 
 runs:
   using: 'composite'
