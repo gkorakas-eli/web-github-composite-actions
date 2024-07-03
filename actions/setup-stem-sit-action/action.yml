@@ -1,0 +1,60 @@
+name: 'Setup & serve SIT environment'
+description: 'Serve SIT environment'
+
+inputs:
+  composer_auth:
+    required: true
+  gh_pat:
+    required: true
+  path:
+    default: stem-environment
+  php_version:
+    default: 8.3
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout sit
+      uses: actions/checkout@v4
+      with:
+        repository: 'stetind/stem-environment'
+        ref: 'main'
+        token: ${{ inputs.gh_pat }}
+        path: ${{ inputs.path }}
+
+    - name: 🔨 Setup php
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php_version }}
+        tools: composer:v2
+        coverage: none
+      env:
+        GITHUB_TOKEN: ${{ inputs.composer_auth }}
+
+    - name: 🧙 Install Dependencies
+      uses: ramsey/composer-install@v3
+      with:
+        working-directory: ${{ inputs.path }}
+        composer-options: "--no-interaction --prefer-dist --optimize-autoloader"
+
+    - name: 🧙 Prepare Laravel Application
+      working-directory: ${{ inputs.path }}
+      run: |
+        cp .env.ci .env
+        php artisan key:generate
+      shell: bash
+
+    - name: Publish migrations
+      working-directory: ${{ inputs.path }}
+      run: php artisan vendor:publish --tag=stem-directory-migrations --tag=stem-users-migrations --tag=stem-ppc-migrations
+      shell: bash
+
+    - name: Run migrations
+      working-directory: ${{ inputs.path }}
+      run: php artisan migrate --force
+      shell: bash
+
+    - name: Run backed server
+      working-directory: ${{ inputs.path }}
+      run: php artisan serve > /dev/null 2>&1 &
+      shell: bash
