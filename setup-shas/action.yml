@@ -5,6 +5,13 @@ inputs:
     description: 'Node version'
     required: false
     default: '20'
+outputs:
+  baseSHA:
+    description: "Base SHA"
+    value: ${{ steps.setSHAs.outputs.base }}
+  headSHA:
+    description: "Head SHA"
+    value: ${{ steps.setSHAs.outputs.head }}
 
 runs:
   using: 'composite'
