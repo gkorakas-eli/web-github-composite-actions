@@ -3,13 +3,17 @@ description: 'GitHub action that sets and serves SIT environment.'
 
 inputs:
   composer_auth:
+    description: Composer auth token.
     required: true
   gh_pat:
+    description: GitHub access token.
     required: true
   path:
+    description: Path to SIT directory.
     default: stem-environment
   php_version:
-    default: 8.3
+    description: PHP version.
+    default: '8.3'
 
 runs:
   using: 'composite'
